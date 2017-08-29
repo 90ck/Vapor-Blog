@@ -11,6 +11,9 @@ final class HelloController: ResourceRepresentable {
     
     /// GET /hello
     func index(_ req: Request) throws -> ResponseRepresentable {
+        let user = User.init(name: "asd", password: "12", avatar: "12", gender: "m", bio: "12")
+        try user.save()
+        print(user.id ?? "-null") // the newly saved pet's id
         return try view.make("hello", [
             "name": "World"
         ], for: req)

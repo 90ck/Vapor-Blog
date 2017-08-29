@@ -15,6 +15,8 @@ final class Routes: RouteCollection {
         /// GET /hello/...
         builder.resource("hello", HelloController(view))
         
+        builder.resource("signup", SignupController(view))
+        
         // response to requests to /info domain
         // with a description of the request
         builder.get("info") { req in
