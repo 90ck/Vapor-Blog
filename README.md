@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <p align="center">
     <img src="https://cloud.githubusercontent.com/assets/1977704/25426816/a9d40530-2a70-11e7-9758-8a0da6341035.png" width="320" alt="Web Template">
     <br>
@@ -18,3 +19,7 @@
         <img src="http://img.shields.io/badge/swift-3.1-brightgreen.svg" alt="Swift 3.1">
     </a>
 </p>
+=======
+# Vapor-Blog
+make a blog, use vapor, which is a swift-server-side framwork
+>>>>>>> 50381b21dcca2ddca47ce30f1788422724b52ef8
