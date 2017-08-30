@@ -68,6 +68,7 @@ final class User: Model,NodeConvertible {
 
 extension User: Preparation {
     static func prepare(_ database: Database) throws {
+        
         try database.create(self) { users in
             users.id()
             users.string("name", length: nil ,optional: false ,unique: true)

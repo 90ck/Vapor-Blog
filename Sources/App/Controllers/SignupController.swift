@@ -25,9 +25,9 @@ final class SignupController: ResourceRepresentable {
     
     /// GET /signup
     func index(_ req: Request) throws -> ResponseRepresentable {
-        let res =  try view.make("signup",notification)
-        notification = nil
+        let res =  try view.make("signup",req.flash)
         return res
+        
     }
     
     func store(_ req: Request) throws -> ResponseRepresentable {
@@ -36,7 +36,7 @@ final class SignupController: ResourceRepresentable {
         var password = req.data["password"]?.string
         let repassword = req.data["repassword"]?.string
         let gender = req.data["gender"]?.string
-        let avatar = req.data["avatar"]?.string
+        let avatar = req.data["avatar"]?.bytes
         let bio = req.data["bio"]?.string
         
         do {
@@ -52,29 +52,31 @@ final class SignupController: ResourceRepresentable {
             if !["m","f","x"].contains(gender!){
                 throw CheckError.msg("性别只能是 m、f 或 x")
             }
-//            if avatar!.lengthOfBytes(using: .utf8) <= 0{
-//                throw CheckError.msg("名字请限制在 1-10 个字符")
-//            }
+            if avatar!.count <= 0{
+                throw CheckError.msg("请选择上传头像")
+            }
+            
+            let path = try Config().publicDir
+            try DataFile.write(avatar!, to: "\(path)/images/\(name!).png")
+            
+            //明文密码加密
+            let pwBytes = try Hash.make(.sha1, password!.bytes)
+            password = pwBytes.hexString
+            
+            let user = User.init(name: name!, password: password!, avatar: "", gender: gender!, bio: bio!)
+            try user.save()
+            try? req.assertSession().data.set("user", user)
+            try? req.flash("success", msg: "注册成功")
         }
         catch CheckError.msg(let msg){
-            notification = ["error":msg.makeNode(in: nil)]
+            try req.flash("error", msg: msg)
             return Response(redirect: "/signup")
         }
-        
-        //明文密码加密
-        let pwBytes = try Hash.make(.sha1, password!.bytes)
-        password = pwBytes.hexString
-        
-        let user = User.init(name: name!, password: password!, avatar: avatar!, gender: gender!, bio: bio!)
-        do {
-            try user.save()
-        } catch MySQLError.Code.dupEntry {
+        catch let error as MySQLError where error.code == .dupEntry {
             //用户已存在
-            notification = ["error":"用户名已存在"]
+            try req.flash("success", msg: "用户已存在")
             return Response(redirect: "/signup")
         }
-        req.user = user
-        notification = ["success":"注册成功"]
         return Response(redirect: "/posts")
     }
     
@@ -89,34 +91,19 @@ final class SignupController: ResourceRepresentable {
         )
     }
 }
+
+//通知
 extension Request {
 
-    func flash(name:String?,msg:String?) {
-        storage[name!] = msg
+    func flash(_ name:String,msg:String) throws {
+        try session?.data.set("flash", [name:msg])
     }
     
-//    func set(_ key:String, value:Any?) throws {
-//        try session?.data.set(key, value)
-//    }
-//    
-//    func get(_ key:String) throws -> Any{
-//        return try User(node: session?.data[key])
-//    }
-//    
-    var user:User? {
+    var flash:Node? {
         get{
-            do {
-                return try User(node: session?.data["user"])
-            } catch {
-                return nil
-            }
-        }
-        set{
-            do {
-                try session?.data.set("user", newValue)
-            } catch {
-                
-            }
+            let _flash:Node? = try? assertSession().data.get("flash")
+            session?.data.removeKey("flash")
+            return _flash
         }
     }
 }
