@@ -5,10 +5,11 @@
     <div class="ui success message">
       <p>#(success)</p>
     </div>
-  } ##else() {
-    <div class="ui success message">
+  }
+  ##if(error) {
+    <div class="ui error message">
       <p>#(error)</p>
     </div>
-  }
+  } 
   </div>
 </div>

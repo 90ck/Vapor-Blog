@@ -15,7 +15,15 @@ final class Routes: RouteCollection {
         /// GET /hello/...
         builder.resource("hello", HelloController(view))
         
+        ///注册页
         builder.resource("signup", SignupController(view))
+        
+        builder.get("posts") { (req) -> ResponseRepresentable in
+            return try self.view.make("posts")
+        }
+        
+
+        
         
         // response to requests to /info domain
         // with a description of the request

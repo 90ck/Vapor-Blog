@@ -9,6 +9,7 @@
 import Vapor
 import HTTP
 import Crypto
+import MySQL
 
 enum CheckError:Error {
     case msg(_:String)
@@ -16,13 +17,17 @@ enum CheckError:Error {
 
 final class SignupController: ResourceRepresentable {
     let view: ViewRenderer
+    var notification:Node?
+    
     init(_ view: ViewRenderer) {
         self.view = view
     }
     
     /// GET /signup
     func index(_ req: Request) throws -> ResponseRepresentable {
-        return try view.make("signup")
+        let res =  try view.make("signup",notification)
+        notification = nil
+        return res
     }
     
     func store(_ req: Request) throws -> ResponseRepresentable {
@@ -52,19 +57,26 @@ final class SignupController: ResourceRepresentable {
 //            }
         }
         catch CheckError.msg(let msg){
-            return msg
+            notification = ["error":msg.makeNode(in: nil)]
+            return Response(redirect: "/signup")
         }
         
+        //明文密码加密
         let pwBytes = try Hash.make(.sha1, password!.bytes)
         password = pwBytes.hexString
         
         let user = User.init(name: name!, password: password!, avatar: avatar!, gender: gender!, bio: bio!)
-    
-        return try user.makeJSON()
+        do {
+            try user.save()
+        } catch MySQLError.Code.dupEntry {
+            //用户已存在
+            notification = ["error":"用户名已存在"]
+            return Response(redirect: "/signup")
+        }
+        req.user = user
+        notification = ["success":"注册成功"]
+        return Response(redirect: "/posts")
     }
-    
-    
-
     
     /// When making a controller, it is pretty flexible in that it
     /// only expects closures, this is useful for advanced scenarios, but
@@ -77,5 +89,37 @@ final class SignupController: ResourceRepresentable {
         )
     }
 }
+extension Request {
 
-//}
+    func flash(name:String?,msg:String?) {
+        storage[name!] = msg
+    }
+    
+//    func set(_ key:String, value:Any?) throws {
+//        try session?.data.set(key, value)
+//    }
+//    
+//    func get(_ key:String) throws -> Any{
+//        return try User(node: session?.data[key])
+//    }
+//    
+    var user:User? {
+        get{
+            do {
+                return try User(node: session?.data["user"])
+            } catch {
+                return nil
+            }
+        }
+        set{
+            do {
+                try session?.data.set("user", newValue)
+            } catch {
+                
+            }
+        }
+    }
+}
+
+
+

@@ -8,7 +8,7 @@
 
 import FluentProvider
 
-final class User: Model {
+final class User: Model,NodeConvertible {
     
     var name:String
     var password:String
@@ -26,6 +26,7 @@ final class User: Model {
         self.bio = bio
     }
     
+    //row
     init(row:Row) throws {
         self.name = try row.get("name")
         self.password = try row.get("password")
@@ -45,13 +46,31 @@ final class User: Model {
         return row
     }
     
+    
+    //node
+    init(node:Node) throws {
+        name = try node.get("name")
+        password = try node.get("password")
+        avatar = try node.get("avatar")
+        gender = try node.get("gender")
+        bio = try node.get("bio")
+    }
+    func makeNode(in context: Context?) throws -> Node {
+        var node = Node(context)
+        try node.set("name", name)
+        try node.set("password", password)
+        try node.set("avatar",avatar)
+        try node.set("gender",gender)
+        try node.set("bio",bio)
+        return node
+    }
 }
 
 extension User: Preparation {
     static func prepare(_ database: Database) throws {
         try database.create(self) { users in
             users.id()
-            users.string("name")
+            users.string("name", length: nil ,optional: false ,unique: true)
             users.string("password")
             users.string("gender")
             users.string("avatar")
@@ -64,7 +83,10 @@ extension User: Preparation {
     }
 }
 
-extension User:JSONRepresentable {
+extension User:JSONConvertible {
+    convenience init(json: JSON) throws {
+        try self.init(name: json.get("name"), password: json.get("password"), avatar: json.get("avatar"), gender: json.get("gender"), bio: json.get("bio"))
+    }
     func makeJSON() throws -> JSON {
         var json = JSON()
         try json.set("name", name)
