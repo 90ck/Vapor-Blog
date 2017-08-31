@@ -17,15 +17,15 @@ enum CheckError:Error {
 
 final class SignupController: ResourceRepresentable {
     let view: ViewRenderer
-    var notification:Node?
-    
     init(_ view: ViewRenderer) {
         self.view = view
     }
     
     /// GET /signup
     func index(_ req: Request) throws -> ResponseRepresentable {
-        let res =  try view.make("signup",req.flash)
+//        var a = Node.init([], in: nil)
+        
+        let res =  try view.make("signup",[req.flash])
         return res
         
     }
@@ -36,7 +36,7 @@ final class SignupController: ResourceRepresentable {
         var password = req.data["password"]?.string
         let repassword = req.data["repassword"]?.string
         let gender = req.data["gender"]?.string
-        let avatar = req.data["avatar"]?.bytes
+        let avatarBytes = req.data["avatar"]?.bytes
         let bio = req.data["bio"]?.string
         
         do {
@@ -52,19 +52,21 @@ final class SignupController: ResourceRepresentable {
             if !["m","f","x"].contains(gender!){
                 throw CheckError.msg("性别只能是 m、f 或 x")
             }
-            if avatar!.count <= 0{
+            if avatarBytes!.count <= 0{
                 throw CheckError.msg("请选择上传头像")
             }
             
             let path = try Config().publicDir
-            try DataFile.write(avatar!, to: "\(path)/images/\(name!).png")
+            let avatar = "/images/\(Date().timeIntervalSince1970).png"
+            try DataFile.write(avatarBytes!, to: path+avatar)
             
             //明文密码加密
             let pwBytes = try Hash.make(.sha1, password!.bytes)
             password = pwBytes.hexString
             
-            let user = User.init(name: name!, password: password!, avatar: "", gender: gender!, bio: bio!)
+            let user = User.init(name: name!, password: password!, avatar: avatar, gender: gender!, bio: bio!)
             try user.save()
+            
             try? req.assertSession().data.set("user", user)
             try? req.flash("success", msg: "注册成功")
         }
@@ -77,6 +79,10 @@ final class SignupController: ResourceRepresentable {
             try req.flash("success", msg: "用户已存在")
             return Response(redirect: "/signup")
         }
+        catch {
+            throw error
+        }
+        
         return Response(redirect: "/posts")
     }
     
@@ -92,6 +98,7 @@ final class SignupController: ResourceRepresentable {
     }
 }
 
+
 //通知
 extension Request {
 
@@ -99,9 +106,9 @@ extension Request {
         try session?.data.set("flash", [name:msg])
     }
     
-    var flash:Node? {
+    var flash:Node {
         get{
-            let _flash:Node? = try? assertSession().data.get("flash")
+            let _flash:Node = (try? assertSession().data.get("flash")) ?? []
             session?.data.removeKey("flash")
             return _flash
         }

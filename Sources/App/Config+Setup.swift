@@ -8,12 +8,14 @@ extension Config {
         
         try setupProviders()
         setupPreparation()
+ 
     }
     
     /// Configure providers
     private func setupProviders() throws {
         try addProvider(LeafProvider.Provider.self)
         try addProvider(MySQLProvider.Provider.self)
+        try addProvider(LocalProvider.self)
     }
     
     private func setupPreparation() {

@@ -16,6 +16,7 @@ final class User: Model,NodeConvertible {
     var gender:String
     var bio:String
     
+    
     let storage: Storage = Storage()
     
     init(name:String,password:String,avatar:String,gender:String,bio:String) {
@@ -62,6 +63,7 @@ final class User: Model,NodeConvertible {
         try node.set("avatar",avatar)
         try node.set("gender",gender)
         try node.set("bio",bio)
+        try node.set("id", id)
         return node
     }
 }

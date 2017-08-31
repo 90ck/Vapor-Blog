@@ -15,13 +15,17 @@ final class Routes: RouteCollection {
         /// GET /hello/...
         builder.resource("hello", HelloController(view))
         
-        ///注册页
+        /// 注册页
         builder.resource("signup", SignupController(view))
         
-        builder.get("posts") { (req) -> ResponseRepresentable in
-            return try self.view.make("posts")
-        }
+        /// 登录
+        builder.resource("signin", SigninController(view))
         
+        /// 登出
+        builder.resource("signout", SignoutController(view))
+        
+        /// 文章页
+        builder.resource("posts", PostsController(view))
 
         
         
