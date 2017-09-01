@@ -24,8 +24,8 @@ final class SignupController: ResourceRepresentable {
     /// GET /signup
     func index(_ req: Request) throws -> ResponseRepresentable {
 //        var a = Node.init([], in: nil)
-        
-        let res =  try view.make("signup",[req.flash])
+        LeafData.shared["flash"] = req.flash
+        let res =  try view.make("signup",LeafData.shared)
         return res
         
     }

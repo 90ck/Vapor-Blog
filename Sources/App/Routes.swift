@@ -27,8 +27,6 @@ final class Routes: RouteCollection {
         /// 文章页
         builder.resource("posts", PostsController(view))
 
-        
-        
         // response to requests to /info domain
         // with a description of the request
         builder.get("info") { req in

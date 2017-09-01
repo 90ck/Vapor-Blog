@@ -15,11 +15,10 @@ extension Config {
     private func setupProviders() throws {
         try addProvider(LeafProvider.Provider.self)
         try addProvider(MySQLProvider.Provider.self)
-        try addProvider(LocalProvider.self)
+//        try addProvider(LocalProvider.self)
     }
     
     private func setupPreparation() {
         preparations.append(User.self)
-        
     }
 }

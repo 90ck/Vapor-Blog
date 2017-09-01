@@ -10,7 +10,7 @@ final class LocalProvider: Vapor.Provider {
     
     static var repositoryName: String = "Local-Provider"
     
-    static var local:Node?
+    static var local:Node? = []
     
     required init(config: Config) throws {
         

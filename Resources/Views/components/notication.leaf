@@ -1,15 +1,17 @@
 <div class="ui grid">
   <div class="four wide column"></div>
   <div class="eight wide column">
-  #if(success) {
+  #if(flash.success) {
     <div class="ui success message">
-      <p>#(success)</p>
+      <p>#(flash.success)</p>
     </div>
   }
-  ##if(error) {
+  ##if(flash.error) {
     <div class="ui error message">
-      <p>#(error)</p>
+      <p>#(flash.error)</p>
     </div>
   } 
   </div>
 </div>
+
+

@@ -16,7 +16,8 @@ final class SigninController:ResourceRepresentable,ResourceMethod {
     }
     ///GET /signin
     func index(_ req:Request) throws -> ResponseRepresentable {
-        return try self.view.make("signin",[req.flash,Local.shared])
+        LeafData.shared["flash"] = req.flash
+        return try self.view.make("signin",LeafData.shared)
     }
     
     func store(_ req: Request) throws -> ResponseRepresentable {

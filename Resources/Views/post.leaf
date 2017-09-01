@@ -1,0 +1,3 @@
+#embed("header")
+#embed("components/pot-content")
+#embed("footer")
