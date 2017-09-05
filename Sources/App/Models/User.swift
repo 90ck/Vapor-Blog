@@ -16,6 +16,9 @@ final class User: Model,NodeConvertible {
     var gender:String
     var bio:String
     
+    var posts:Children<User,Post> {
+        return children()
+    }
     
     let storage: Storage = Storage()
     

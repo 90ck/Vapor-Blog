@@ -8,12 +8,16 @@
 
 import FluentProvider
 
-final class Post: Model {
+final class Post: Model,NodeConvertible {
     
     var author:Int
     var title:String
     var content:String
     var pv:Int
+    
+//    var owner:Parent<Post,User> {
+//        return parent(id: author)
+//    }
     
     let storage: Storage = Storage()
     
@@ -39,14 +43,32 @@ final class Post: Model {
         self.content = try row.get("content")
         self.pv = try row.get("pv")
     }
+    
+    //node
+    init(node:Node) throws {
+        author = try node.get("author")
+        title = try node.get("title")
+        content = try node.get("content")
+        pv = try node.get("pv")
+    }
+    
+    func makeNode(in context: Context?) throws -> Node {
+        var node = Node(context)
+        try node.set("author", author)
+        try node.set("title", title)
+        try node.set("content",content)
+        try node.set("pv",pv)
+        try node.set("id", id)
+        return node
+    }
 }
 
 extension Post:Preparation {
     static func prepare(_ database: Database) throws {
         
-        try database.create(self) { post in
+        try database.modify(self) { post in
             post.id()
-            post.int("author")
+            post.foreignKey("author", references: "id", on: User.self)
             post.string("title")
             post.string("content")
             post.int("pv")

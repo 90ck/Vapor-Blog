@@ -1,3 +1,3 @@
 #embed("header")
-#embed("components/pot-content")
+#embed("components/post-content")
 #embed("footer")

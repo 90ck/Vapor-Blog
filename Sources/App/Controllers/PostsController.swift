@@ -25,6 +25,13 @@ final class PostsController:ResourceMethod,ResourceRepresentable {
         if string == "create" {
             return try postsCreate(req)
         }
+        else if let postid = string.int, postid != 0 {
+            let post = try Post.find(postid)
+            let user = post?.owner
+            LeafData.shared["post"] = try post.makeNode(in: nil)
+            LeafData.shared["user"] = try user.makeNode(in: nil)
+            return try self.view.make("post",LeafData.shared)
+        }
         throw Abort.notFound
     }
     
@@ -48,7 +55,7 @@ final class PostsController:ResourceMethod,ResourceRepresentable {
             let post = Post.init(author: author!, title: title!, content: content!, pv: 0)
             try post.save()
             try req.flash("success", msg: "发布成功")
-            return Response(redirect: "posts\((post.id?.int)!)")
+            return Response(redirect: "posts/\((post.id?.int)!)")
             
         } catch CheckError.msg(let msg) {
             try req.flash("error", msg: msg)
@@ -65,7 +72,7 @@ final class PostsController:ResourceMethod,ResourceRepresentable {
         
         let user = try req.assertSession().data["user"]
         LeafData.shared["user"] = user
-        return try self.view.make("posts",LeafData.shared)
+        return try self.view.make("create",LeafData.shared)
     }
     
     
