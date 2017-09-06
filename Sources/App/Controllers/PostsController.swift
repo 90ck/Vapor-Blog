@@ -27,7 +27,8 @@ final class PostsController:ResourceMethod,ResourceRepresentable {
         }
         else if let postid = string.int, postid != 0 {
             let post = try Post.find(postid)
-            let user = post?.owner
+            let user = try post?.owner.get()
+            
             LeafData.shared["post"] = try post.makeNode(in: nil)
             LeafData.shared["user"] = try user.makeNode(in: nil)
             return try self.view.make("post",LeafData.shared)

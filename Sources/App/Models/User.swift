@@ -8,7 +8,7 @@
 
 import FluentProvider
 
-final class User: Model,NodeConvertible {
+final class User: Model,NodeConvertible,Timestampable {
     
     var name:String
     var password:String
@@ -67,6 +67,7 @@ final class User: Model,NodeConvertible {
         try node.set("gender",gender)
         try node.set("bio",bio)
         try node.set("id", id)
+        try node.set("created_at", createdAt)
         return node
     }
 }
@@ -88,6 +89,8 @@ extension User: Preparation {
         try database.delete(self)
     }
 }
+
+
 
 extension User:JSONConvertible {
     convenience init(json: JSON) throws {

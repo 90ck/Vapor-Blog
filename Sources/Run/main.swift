@@ -30,5 +30,4 @@ drop.database?.log = { query in
     print(query)
 }
 
-
 try drop.run()

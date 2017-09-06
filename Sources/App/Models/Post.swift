@@ -8,16 +8,18 @@
 
 import FluentProvider
 
-final class Post: Model,NodeConvertible {
+final class Post: Model,NodeConvertible,Timestampable {
     
     var author:Int
     var title:String
     var content:String
     var pv:Int
     
-//    var owner:Parent<Post,User> {
-//        return parent(id: author)
-//    }
+    var owner:Parent<Post,User> {
+        return parent(id: Identifier(author))
+    }
+    
+    var authorer:User?
     
     let storage: Storage = Storage()
     
@@ -59,6 +61,7 @@ final class Post: Model,NodeConvertible {
         try node.set("content",content)
         try node.set("pv",pv)
         try node.set("id", id)
+        try node.set("created_at", createdAt)
         return node
     }
 }
@@ -66,9 +69,9 @@ final class Post: Model,NodeConvertible {
 extension Post:Preparation {
     static func prepare(_ database: Database) throws {
         
-        try database.modify(self) { post in
+        try database.create(self) { post in
             post.id()
-            post.foreignKey("author", references: "id", on: User.self)
+            post.int("author")
             post.string("title")
             post.string("content")
             post.int("pv")
