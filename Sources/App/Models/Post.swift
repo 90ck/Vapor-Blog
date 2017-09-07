@@ -15,6 +15,8 @@ final class Post: Model,NodeConvertible,Timestampable {
     var content:String
     var pv:Int
     
+    
+    
     var owner:Parent<Post,User> {
         return parent(id: Identifier(author))
     }
@@ -52,6 +54,7 @@ final class Post: Model,NodeConvertible,Timestampable {
         title = try node.get("title")
         content = try node.get("content")
         pv = try node.get("pv")
+        authorer = try node.get("authorer")
     }
     
     func makeNode(in context: Context?) throws -> Node {
@@ -62,6 +65,7 @@ final class Post: Model,NodeConvertible,Timestampable {
         try node.set("pv",pv)
         try node.set("id", id)
         try node.set("created_at", createdAt)
+        try node.set("authorer", authorer)
         return node
     }
 }

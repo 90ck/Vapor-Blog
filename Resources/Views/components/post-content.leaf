@@ -2,10 +2,10 @@
   <div class="ui grid">
     <div class="four wide column">
       <a class="avatar avatar-link"
-         href="/posts?author=#(post.author.id)"
-         data-title="#(post.author.name) |#(post.author.gender)"
-         data-content="#(post.author.bio)">
-        <img class="avatar" src="#(post.author.avatar)">
+         href="/posts?author=#(post.authorer.id)"
+         data-title="#(post.authorer.name) |#(post.authorer.gender)"
+         data-content="#(post.authorer.bio)">
+        <img class="avatar" src="#(post.authorer.avatar)">
       </a>
     </div>
 
@@ -18,7 +18,7 @@
           <span class="tag right">
             <span>浏览#(post.pv)</span>
             <span>留言(#(post.comentsCount))</span>
-            #if(user && user.id == post.author.id) {
+            #if(user && user.id == post.authorer.id) {
                 <div class="ui inline dropdown">
                 <div class="text"></div>
                 <i class="dropdown icon"></i>

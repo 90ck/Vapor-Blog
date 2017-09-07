@@ -15,26 +15,46 @@ final class PostsController:ResourceMethod,ResourceRepresentable {
     
     /// GET /posts
     func index(_ req: Request) throws -> ResponseRepresentable {
+        
+        var posts:[Post] = []
         let user = try req.assertSession().data["user"]
-        LeafData.shared["user"] = user
-        return try self.view.make("posts",LeafData.shared)
+        if let author = req.data["author"]?.int {
+            posts = try Post.makeQuery().filter("author", author).limit(10).all().map({ (post) -> Post in
+                post.authorer = try post.owner.get()
+                return post
+            })
+        }
+        else {
+            if user == nil {
+                try req.flash("error", msg: "请先登录")
+                return Response(redirect: "/signin")
+            }
+        }
+        return try self.view.make("posts",[
+            "blog":LeafData.blog,
+            "posts":posts])
     }
     
     /// GET /posts/:id
     func show(_ req: Request, _ string: String) throws -> ResponseRepresentable {
+
         if string == "create" {
             return try postsCreate(req)
         }
-        else if let postid = string.int, postid != 0 {
-            let post = try Post.find(postid)
-            let user = try post?.owner.get()
-            
-            LeafData.shared["post"] = try post.makeNode(in: nil)
-            LeafData.shared["user"] = try user.makeNode(in: nil)
-            return try self.view.make("post",LeafData.shared)
+        if let postid = string.int, postid != 0 {
+            if let post = try Post.find(postid),let user = try post.owner.get() {
+                return try self.view.make("post",[
+                    "user":user,
+                    "post":post,
+                    "flash":req.flash,
+                    "blog":LeafData.blog
+                    ])
+            }
+            return Response(redirect: "create")
         }
         throw Abort.notFound
     }
+    
     
     
     
@@ -70,14 +90,16 @@ final class PostsController:ResourceMethod,ResourceRepresentable {
     
     /// GET /posts/create
     func postsCreate(_ req: Request) throws -> ResponseRepresentable {
-        
-        let user = try req.assertSession().data["user"]
-        LeafData.shared["user"] = user
-        return try self.view.make("create",LeafData.shared)
+
+        if let user = try req.assertSession().data["user"] {
+            return try self.view.make("create",["user":user,"flash":req.flash,"blog":LeafData.blog])
+        }
+        else{
+            try req.flash("error", msg: "请先登录")
+            return Response(redirect: "/signin")
+        }
     }
-    
-    
-    
+
     
     func makeResource() -> Resource<String> {
         return Resource(
@@ -88,8 +110,11 @@ final class PostsController:ResourceMethod,ResourceRepresentable {
     }
 }
 
+
+
 struct LeafData {
-    static var shared:Node = ["blog":["title":"悟了个空","description":"这是一个swift服务端框架Vapor的webDemo"]]
+
+    static var blog:Node = ["title":"悟了个空","description":"这是一个swift服务端框架Vapor的webDemo"]
 }
 
 

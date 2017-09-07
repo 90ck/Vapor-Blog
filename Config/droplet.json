@@ -39,6 +39,7 @@
         "date",
         "file",
         "sessions",
+        
     ],
 
     "//": "Choose which commands this application can run",

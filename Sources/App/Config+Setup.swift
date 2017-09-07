@@ -8,7 +8,7 @@ extension Config {
         
         try setupProviders()
         setupPreparation()
- 
+        addMiddleware()
     }
     
     /// Configure providers
@@ -21,5 +21,12 @@ extension Config {
     private func setupPreparation() {
         preparations.append(User.self)
         preparations.append(Post.self)
+    }
+    
+    private func addMiddleware() {
+        addConfigurable(middleware: CheckMiddleware(), name: "checkLogin")
+
+//        addConfigurable(middleware: LocalMiddleware(), name: "local")
+        
     }
 }

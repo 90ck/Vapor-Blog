@@ -12,7 +12,6 @@ final class Routes: RouteCollection {
             return try self.view.make("welcome")
         }
         
-        
         /// GET /hello/...
         builder.resource("hello", HelloController(view))
         

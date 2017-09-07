@@ -18,7 +18,7 @@ final class SignoutController:ResourceRepresentable {
         //清空session中的user信息
         req.session?.data.removeKey("user")
         try? req.flash("success", msg: "退出成功")
-        return Response(redirect: "/posts")
+        return Response(redirect: "signin")
     }
     
     func makeResource() -> Resource<String> {
