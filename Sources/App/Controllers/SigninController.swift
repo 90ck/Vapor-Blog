@@ -34,10 +34,10 @@ final class SigninController:ResourceRepresentable,ResourceMethod {
             return Response(redirect: "/signin")
         }
         try req.flash("success", msg: "登录成功")
-        try? req.assertSession().data.set("user", user)
-        return Response(redirect: "/posts")
+        try req.assertSession().data.set("user", user)
+        
+        return Response(redirect: "/posts?author=\((user.id?.int)!)")
     }
-    
     
     
     func makeResource() -> Resource<String> {
@@ -47,4 +47,8 @@ final class SigninController:ResourceRepresentable,ResourceMethod {
         )
     }
 }
+
+
+
+
 

@@ -64,7 +64,7 @@ final class Post: Model,NodeConvertible,Timestampable {
         try node.set("content",content)
         try node.set("pv",pv)
         try node.set("id", id)
-        try node.set("created_at", createdAt)
+        try node.set("created_at", createdAt?.formate("yyyy年MM月dd日 HH:mm:ss"))
         try node.set("authorer", authorer)
         return node
     }

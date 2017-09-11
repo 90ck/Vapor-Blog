@@ -17,7 +17,8 @@ final class PostsController:ResourceMethod,ResourceRepresentable {
     func index(_ req: Request) throws -> ResponseRepresentable {
         
         var posts:[Post] = []
-        let user = try req.assertSession().data["user"]
+        let user = try req.assertSession().data["user"] ?? []
+        
         if let author = req.data["author"]?.int {
             posts = try Post.makeQuery().filter("author", author).limit(10).all().map({ (post) -> Post in
                 post.authorer = try post.owner.get()
@@ -25,13 +26,15 @@ final class PostsController:ResourceMethod,ResourceRepresentable {
             })
         }
         else {
-            if user == nil {
-                try req.flash("error", msg: "请先登录")
-                return Response(redirect: "/signin")
-            }
+            posts = try Post.makeQuery().limit(10).all().map({ (post) -> Post in
+                post.authorer = try post.owner.get()
+                return post
+            })
         }
         return try self.view.make("posts",[
+            "flash":req.flash,
             "blog":LeafData.blog,
+            "user":user,
             "posts":posts])
     }
     
@@ -43,6 +46,7 @@ final class PostsController:ResourceMethod,ResourceRepresentable {
         }
         if let postid = string.int, postid != 0 {
             if let post = try Post.find(postid),let user = try post.owner.get() {
+                post.authorer = user
                 return try self.view.make("post",[
                     "user":user,
                     "post":post,
